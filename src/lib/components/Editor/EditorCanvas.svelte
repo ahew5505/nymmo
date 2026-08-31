@@ -1,31 +1,38 @@
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte';
+  import { onMount, onDestroy, mount, unmount } from 'svelte';
   import { Editor, Node } from '@tiptap/core';
   import StarterKit from '@tiptap/starter-kit';
 
   import MenuBar from './MenuBar.svelte';
   import LatexNodeComponent from './nodes/LatexNode.svelte';
+  import LatexInlineNodeComponent from './nodes/LatexInlineNode.svelte';
   import RdkitNodeComponent from './nodes/RdkitNode.svelte';
   import DiagramNodeComponent from './nodes/DiagramNode.svelte';
   import { getDatabase } from '../../db/rxdb';
 
-  export let docId: string = 'doc_benzene_synthesis';
-  export let onSaveStatusChange: ((status: string) => void) | undefined = undefined;
+  let { 
+    docId = 'doc_benzene_synthesis', 
+    onSaveStatusChange = undefined 
+  }: { 
+    docId?: string; 
+    onSaveStatusChange?: (status: string) => void 
+  } = $props();
 
   let element: HTMLDivElement;
-  let editor: Editor | null = null;
-  let slashActive: boolean = false;
-  let slashPosition = { top: 0, left: 0 };
+  let editor = $state<Editor | null>(null);
+  let slashActive = $state<boolean>(false);
+  let slashPosition = $state<{ top: number; left: number }>({ top: 0, left: 0 });
   let db: any = null;
 
-  // Custom TipTap Extension: LatexNode
+  // Custom TipTap Extension: LatexNode (Display Block Math)
   const LatexNode = Node.create({
     name: 'latexNode',
     group: 'block',
     atom: true,
     addAttributes() {
       return {
-        latex: { default: 'E_k = \\frac{\\hbar^2 k^2}{2m} + \\sum_{i} \\int \\psi_i^* \\hat{H} \\psi_i d\\tau' }
+        latex: { default: 'E_k = \\frac{\\hbar^2 k^2}{2m} + \\sum_{i} \\int \\psi_i^* \\hat{H} \\psi_i d\\tau' },
+        displayMode: { default: true }
       };
     },
     parseHTML() {
@@ -37,7 +44,7 @@
     addNodeView() {
       return ({ node, getPos, editor }) => {
         const dom = document.createElement('div');
-        const comp = new LatexNodeComponent({
+        const comp = mount(LatexNodeComponent as any, {
           target: dom,
           props: {
             node,
@@ -51,7 +58,56 @@
         });
         return {
           dom,
-          destroy: () => comp.$destroy && comp.$destroy()
+          stopEvent: (event: Event) => {
+            const target = event.target as HTMLElement;
+            return target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'BUTTON' || !!target.closest('button, input, textarea'));
+          },
+          destroy: () => unmount(comp)
+        };
+      };
+    }
+  });
+
+  // Custom TipTap Extension: LatexInlineNode (Inline Math)
+  const LatexInlineNode = Node.create({
+    name: 'latexInlineNode',
+    group: 'inline',
+    inline: true,
+    atom: true,
+    addAttributes() {
+      return {
+        latex: { default: '\\psi_i(x)' }
+      };
+    },
+    parseHTML() {
+      return [{ tag: 'span[data-type="latex-inline-node"]' }];
+    },
+    renderHTML({ HTMLAttributes }) {
+      return ['span', { 'data-type': 'latex-inline-node', ...HTMLAttributes }];
+    },
+    addNodeView() {
+      return ({ node, getPos, editor }) => {
+        const dom = document.createElement('span');
+        dom.style.display = 'inline-block';
+        const comp = mount(LatexInlineNodeComponent as any, {
+          target: dom,
+          props: {
+            node,
+            selected: false,
+            updateAttributes: (attrs: any) => {
+              if (typeof getPos === 'function') {
+                editor.commands.updateAttributes('latexInlineNode', attrs);
+              }
+            }
+          }
+        });
+        return {
+          dom,
+          stopEvent: (event: Event) => {
+            const target = event.target as HTMLElement;
+            return target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'BUTTON' || !!target.closest('button, input, textarea'));
+          },
+          destroy: () => unmount(comp)
         };
       };
     }
@@ -76,7 +132,7 @@
     addNodeView() {
       return ({ node, getPos, editor }) => {
         const dom = document.createElement('div');
-        const comp = new RdkitNodeComponent({
+        const comp = mount(RdkitNodeComponent as any, {
           target: dom,
           props: {
             node,
@@ -90,7 +146,11 @@
         });
         return {
           dom,
-          destroy: () => comp.$destroy && comp.$destroy()
+          stopEvent: (event: Event) => {
+            const target = event.target as HTMLElement;
+            return target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'BUTTON' || !!target.closest('button, input, textarea'));
+          },
+          destroy: () => unmount(comp)
         };
       };
     }
@@ -117,7 +177,7 @@
     addNodeView() {
       return ({ node, getPos, editor }) => {
         const dom = document.createElement('div');
-        const comp = new DiagramNodeComponent({
+        const comp = mount(DiagramNodeComponent as any, {
           target: dom,
           props: {
             node,
@@ -131,7 +191,11 @@
         });
         return {
           dom,
-          destroy: () => comp.$destroy && comp.$destroy()
+          stopEvent: (event: Event) => {
+            const target = event.target as HTMLElement;
+            return target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'BUTTON' || !!target.closest('button, input, textarea'));
+          },
+          destroy: () => unmount(comp)
         };
       };
     }
@@ -155,14 +219,18 @@
           }
         }),
         LatexNode,
+        LatexInlineNode,
         RdkitNode,
         DiagramNode
       ],
       content: `
         <h1>3.2 Quantum Chemistry & Aromaticity</h1>
-        <p>In quantum mechanics, <strong>molecular orbital theory</strong> describes the electronic structure of molecules by combining atomic orbitals into <em>molecular orbitals</em>. Delocalized π-electrons in aromatic rings contribute directly to resonance stabilization energy.</p>
-        <h2>Benzene Resonance Structure</h2>
-        <p>Select text anywhere in this paragraph and click <strong>Bold</strong> or <em>Italic</em> in the floating toolbar, or toggle <strong>H1 / H2</strong> headings!</p>
+        <p>In quantum mechanics, <strong>molecular orbital theory</strong> describes the electronic structure of wavefunctions.</p>
+        <div data-type="latex-node" latex="E_k = \\frac{\\hbar^2 k^2}{2m} + \\sum_{i} \\int \\psi_i^* \\hat{H} \\psi_i d\\tau"></div>
+        <h2>Benzene Molecular Structure</h2>
+        <div data-type="rdkit-node" smiles="c1ccccc1"></div>
+        <h2>Reaction Kinetics Workflow</h2>
+        <div data-type="diagram-node"></div>
       `,
       editorProps: {
         attributes: {
@@ -188,17 +256,6 @@
         saveToRxDB(editor.getJSON());
       }
     });
-
-    // Append initial block nodes if document is blank
-    setTimeout(() => {
-      if (editor && editor.isEmpty) {
-        editor.chain()
-          .insertContent({ type: 'latexNode' })
-          .insertContent({ type: 'rdkitNode' })
-          .insertContent({ type: 'diagramNode' })
-          .run();
-      }
-    }, 100);
   });
 
   let saveTimeout: any;
@@ -237,12 +294,14 @@
       editor.chain().focus().deleteRange({ from: from - 1, to: from }).run();
     }
 
-    if (command === 'latex') {
-      editor.chain().focus().insertContent({ type: 'latexNode' }).run();
+    if (command === 'latex-block') {
+      editor.chain().focus().insertContent({ type: 'latexNode', attrs: { displayMode: true, latex: 'E = mc^2' } }).run();
+    } else if (command === 'latex-inline') {
+      editor.chain().focus().insertContent({ type: 'latexInlineNode', attrs: { latex: '\\psi_i(x)' } }).run();
     } else if (command === 'chemistry') {
-      editor.chain().focus().insertContent({ type: 'rdkitNode' }).run();
+      editor.chain().focus().insertContent({ type: 'rdkitNode', attrs: { smiles: 'c1ccccc1' } }).run();
     } else if (command === 'diagram') {
-      editor.chain().focus().insertContent({ type: 'diagramNode' }).run();
+      editor.chain().focus().insertContent({ type: 'diagramNode', attrs: { code: 'graph LR\n  A --> B' } }).run();
     } else if (command === 'h1') {
       editor.chain().focus().toggleHeading({ level: 1 }).run();
     } else if (command === 'h2') {

@@ -381,6 +381,13 @@ https://svelte.dev/e/invalid_id_prefix`);
   error.name = "Svelte error";
   throw error;
 }
+function lifecycle_function_unavailable(name) {
+  const error = new Error(`lifecycle_function_unavailable
+\`${name}(...)\` is not available on the server
+https://svelte.dev/e/lifecycle_function_unavailable`);
+  error.name = "Svelte error";
+  throw error;
+}
 function server_context_required() {
   const error = new Error(`server_context_required
 Could not resolve \`render\` context.
@@ -1456,21 +1463,22 @@ export {
   render as a3,
   setContext as a4,
   derived as a5,
-  ssr_context as a6,
-  sanitize_props as a7,
-  rest_props as a8,
-  fallback as a9,
-  attributes as aa,
-  clsx as ab,
-  ensure_array_like as ac,
-  element as ad,
-  slot as ae,
-  bind_props as af,
-  spread_props as ag,
-  attr_class as ah,
-  attr as ai,
-  attr_style as aj,
-  stringify as ak,
+  lifecycle_function_unavailable as a6,
+  ssr_context as a7,
+  sanitize_props as a8,
+  rest_props as a9,
+  fallback as aa,
+  attributes as ab,
+  clsx as ac,
+  ensure_array_like as ad,
+  element as ae,
+  slot as af,
+  bind_props as ag,
+  spread_props as ah,
+  attr_class as ai,
+  attr as aj,
+  attr_style as ak,
+  stringify as al,
   HYDRATION_END as b,
   HYDRATION_START as c,
   define_property as d,

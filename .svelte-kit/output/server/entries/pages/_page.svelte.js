@@ -1,17 +1,18 @@
-import { a6 as ssr_context, a7 as sanitize_props, a8 as rest_props, a9 as fallback, aa as attributes, ab as clsx, ac as ensure_array_like, ad as element, ae as slot, af as bind_props, ag as spread_props, ah as attr_class, ai as attr, aj as attr_style, ak as stringify, e as escape_html } from "../../chunks/index.js";
+import { a6 as lifecycle_function_unavailable, a7 as ssr_context, a8 as sanitize_props, a9 as rest_props, aa as fallback, ab as attributes, ac as clsx, ad as ensure_array_like, ae as element, af as slot, ag as bind_props, ah as spread_props, ai as attr_class, aj as attr, ak as attr_style, al as stringify, e as escape_html } from "../../chunks/index.js";
 import "clsx";
 import { Node } from "@tiptap/core";
 import "@tiptap/starter-kit";
 import "katex";
-import mermaid from "mermaid";
-function html(value) {
-  var html2 = String(value ?? "");
-  var open = "<!---->";
-  return open + html2 + "<!---->";
-}
+import "mermaid";
 function onDestroy(fn) {
   /** @type {SSRContext} */
   ssr_context.r.on_destroy(fn);
+}
+function mount() {
+  lifecycle_function_unavailable("mount");
+}
+function unmount() {
+  lifecycle_function_unavailable("unmount");
 }
 /**
  * @license lucide-svelte v0.475.0 - ISC
@@ -1033,6 +1034,59 @@ function Undo($$renderer, $$props) {
     }
   ]));
 }
+function Variable($$renderer, $$props) {
+  const $$sanitized_props = sanitize_props($$props);
+  /**
+   * @license lucide-svelte v0.475.0 - ISC
+   *
+   * ISC License
+   *
+   * Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2022 as part of Feather (MIT). All other copyright (c) for Lucide are held by Lucide Contributors 2022.
+   *
+   * Permission to use, copy, modify, and/or distribute this software for any
+   * purpose with or without fee is hereby granted, provided that the above
+   * copyright notice and this permission notice appear in all copies.
+   *
+   * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+   * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+   * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+   * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+   * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+   * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+   * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+   *
+   */
+  const iconNode = [
+    ["path", { "d": "M8 21s-4-3-4-9 4-9 4-9" }],
+    ["path", { "d": "M16 3s4 3 4 9-4 9-4 9" }],
+    ["line", { "x1": "15", "x2": "9", "y1": "9", "y2": "15" }],
+    ["line", { "x1": "9", "x2": "15", "y1": "9", "y2": "15" }]
+  ];
+  Icon($$renderer, spread_props([
+    { name: "variable" },
+    $$sanitized_props,
+    {
+      /**
+       * @component @name Variable
+       * @description Lucide SVG icon component, renders SVG Element with children.
+       *
+       * @preview ![img](data:image/svg+xml;base64,PHN2ZyAgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIgogIHdpZHRoPSIyNCIKICBoZWlnaHQ9IjI0IgogIHZpZXdCb3g9IjAgMCAyNCAyNCIKICBmaWxsPSJub25lIgogIHN0cm9rZT0iIzAwMCIgc3R5bGU9ImJhY2tncm91bmQtY29sb3I6ICNmZmY7IGJvcmRlci1yYWRpdXM6IDJweCIKICBzdHJva2Utd2lkdGg9IjIiCiAgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIgogIHN0cm9rZS1saW5lam9pbj0icm91bmQiCj4KICA8cGF0aCBkPSJNOCAyMXMtNC0zLTQtOSA0LTkgNC05IiAvPgogIDxwYXRoIGQ9Ik0xNiAzczQgMyA0IDktNCA5LTQgOSIgLz4KICA8bGluZSB4MT0iMTUiIHgyPSI5IiB5MT0iOSIgeTI9IjE1IiAvPgogIDxsaW5lIHgxPSI5IiB4Mj0iMTUiIHkxPSI5IiB5Mj0iMTUiIC8+Cjwvc3ZnPgo=) - https://lucide.dev/icons/variable
+       * @see https://lucide.dev/guide/packages/lucide-svelte - Documentation
+       *
+       * @param {Object} props - Lucide icons props and any valid SVG attribute
+       * @returns {FunctionalComponent} Svelte component
+       *
+       */
+      iconNode,
+      children: ($$renderer2) => {
+        $$renderer2.push(`<!--[-->`);
+        slot($$renderer2, $$props, "default", {});
+        $$renderer2.push(`<!--]-->`);
+      },
+      $$slots: { default: true }
+    }
+  ]));
+}
 function Workflow($$renderer, $$props) {
   const $$sanitized_props = sanitize_props($$props);
   /**
@@ -1181,11 +1235,18 @@ function MenuBar($$renderer, $$props) {
     });
     const slashCommands = [
       {
-        id: "latex",
-        title: "/latex",
-        subtitle: "LaTeX Math Equation (KaTeX)",
+        id: "latex-block",
+        title: "/math",
+        subtitle: "Display Math Equation Block ($$)",
         icon: Calculator,
-        badge: "KaTeX"
+        badge: "Display"
+      },
+      {
+        id: "latex-inline",
+        title: "/inlinemath",
+        subtitle: "Inline Math Formula ($)",
+        icon: Variable,
+        badge: "Inline"
       },
       {
         id: "chemistry",
@@ -1251,11 +1312,13 @@ function MenuBar($$renderer, $$props) {
       List_ordered($$renderer2, { class: "w-4 h-4" });
       $$renderer2.push(`<!----></button> <button type="button"${attr_class(`p-2 rounded-lg text-[#78716c] hover:bg-[#f3efea] hover:text-[#2c2a29] transition-colors ${isBlockquote ? "bg-[#fdf3ef] text-[#d96b43] shadow-2xs" : ""}`)} title="Quote">`);
       Quote($$renderer2, { class: "w-4 h-4" });
-      $$renderer2.push(`<!----></button></div> <div class="flex items-center gap-1"><div class="h-4 w-[1px] bg-[#e6e1da] mx-1"></div> <button type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#faf8f5] hover:bg-[#fdf3ef] hover:text-[#d96b43] text-xs font-medium text-[#78716c] border border-[#e6e1da] transition-all">`);
+      $$renderer2.push(`<!----></button></div> <div class="flex items-center gap-1"><div class="h-4 w-[1px] bg-[#e6e1da] mx-1"></div> <button type="button" class="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-[#faf8f5] hover:bg-[#fdf3ef] hover:text-[#d96b43] text-xs font-medium text-[#78716c] border border-[#e6e1da] transition-all" title="Insert inline math equation ($...$)">`);
+      Variable($$renderer2, { class: "w-3.5 h-3.5 text-[#d96b43]" });
+      $$renderer2.push(`<!----> <span>Inline Math</span></button> <button type="button" class="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-[#faf8f5] hover:bg-[#fdf3ef] hover:text-[#d96b43] text-xs font-medium text-[#78716c] border border-[#e6e1da] transition-all" title="Insert display block math equation ($$...$$)">`);
       Calculator($$renderer2, { class: "w-3.5 h-3.5 text-[#d96b43]" });
-      $$renderer2.push(`<!----> <span>+ Math</span></button> <button type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#faf8f5] hover:bg-[#fdf3ef] hover:text-[#d96b43] text-xs font-medium text-[#78716c] border border-[#e6e1da] transition-all">`);
+      $$renderer2.push(`<!----> <span>Display Math</span></button> <button type="button" class="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-[#faf8f5] hover:bg-[#fdf3ef] hover:text-[#d96b43] text-xs font-medium text-[#78716c] border border-[#e6e1da] transition-all">`);
       Flask_conical($$renderer2, { class: "w-3.5 h-3.5 text-[#d96b43]" });
-      $$renderer2.push(`<!----> <span>+ Chem</span></button> <button type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#faf8f5] hover:bg-[#fdf3ef] hover:text-[#d96b43] text-xs font-medium text-[#78716c] border border-[#e6e1da] transition-all">`);
+      $$renderer2.push(`<!----> <span>+ Chem</span></button> <button type="button" class="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-[#faf8f5] hover:bg-[#fdf3ef] hover:text-[#d96b43] text-xs font-medium text-[#78716c] border border-[#e6e1da] transition-all">`);
       Workflow($$renderer2, { class: "w-3.5 h-3.5 text-[#d96b43]" });
       $$renderer2.push(`<!----> <span>+ Diagram</span></button></div> <div class="flex items-center gap-1"><div class="h-4 w-[1px] bg-[#e6e1da] mx-1"></div> <button type="button"${attr("disabled", !canUndo, true)} class="p-2 rounded-lg text-[#78716c] hover:bg-[#f3efea] hover:text-[#2c2a29] disabled:opacity-40 disabled:hover:bg-transparent transition-colors" title="Undo">`);
       Undo($$renderer2, { class: "w-4 h-4" });
@@ -1292,201 +1355,8 @@ function MenuBar($$renderer, $$props) {
     bind_props($$props, { editor, slashActive, slashPosition, onSelectSlashItem });
   });
 }
-function LatexNode($$renderer, $$props) {
-  $$renderer.component(($$renderer2) => {
-    let node = $$props["node"];
-    let updateAttributes = $$props["updateAttributes"];
-    let selected = fallback($$props["selected"], false);
-    let latexSource = node?.attrs?.latex || "E_k = \\frac{\\hbar^2 k^2}{2m} + \\sum_{i} \\int \\psi_i^* \\hat{H} \\psi_i d\\tau";
-    {
-      if (latexSource !== void 0) {
-        if (updateAttributes) updateAttributes({ latex: latexSource });
-      }
-    }
-    $$renderer2.push(`<div${attr_class(`my-6 rounded-xl border border-[#e6e1da] bg-white p-5 shadow-xs transition-all duration-200 hover:border-[#d96b43]/40 ${selected ? "ring-2 ring-[#d96b43] border-transparent" : ""}`)} contenteditable="false"><div class="flex items-center justify-between border-b border-[#f3efea] pb-3 mb-4 select-none"><div class="flex items-center gap-2 text-xs font-semibold tracking-wider text-[#78716c] uppercase"><span class="p-1 rounded-md bg-[#fdf3ef] text-[#d96b43]">`);
-    Calculator($$renderer2, { class: "w-4 h-4" });
-    $$renderer2.push(`<!----></span> <span>LaTeX Math Block</span> <span class="text-[10px] px-1.5 py-0.5 rounded bg-[#f3efea] text-[#78716c]">KaTeX</span></div> <div class="flex items-center gap-2 text-xs"><button type="button" class="flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#f3efea] hover:bg-[#e6e1da] text-[#2c2a29] transition-colors">`);
-    Code($$renderer2, { class: "w-3.5 h-3.5" });
-    $$renderer2.push(`<!----> ${escape_html("Edit Equation")}</button> <button type="button" class="flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#f3efea] hover:bg-[#e6e1da] text-[#2c2a29] transition-colors">`);
-    {
-      $$renderer2.push(`<!--[-1--><span>Copy</span>`);
-    }
-    $$renderer2.push(`<!--]--></button></div></div> <div class="py-4 px-2 overflow-x-auto flex justify-center text-lg min-h-[60px] items-center"><div></div> `);
-    {
-      $$renderer2.push("<!--[-1-->");
-    }
-    $$renderer2.push(`<!--]--></div> `);
-    {
-      $$renderer2.push("<!--[-1-->");
-    }
-    $$renderer2.push(`<!--]--></div>`);
-    bind_props($$props, { node, updateAttributes, selected });
-  });
-}
-let rdkitInstance = null;
-let loadingPromise = null;
-async function loadRDKitWasm() {
-  if (rdkitInstance) return rdkitInstance;
-  if (loadingPromise) return loadingPromise;
-  loadingPromise = (async () => {
-    try {
-      if (typeof window !== "undefined" && window.initRDKitModule) {
-        rdkitInstance = await window.initRDKitModule({
-          locateFile: () => "/rdkit_minimal.wasm"
-        });
-        return rdkitInstance;
-      }
-      return {
-        get_mol: (smiles) => ({
-          get_svg: () => generateMockMolSVG(smiles),
-          delete: () => {
-          }
-        }),
-        version: () => "RDKit-WASM 2024.03.1-client"
-      };
-    } catch (err) {
-      console.warn("RDKit WASM loading fallback:", err);
-      return {
-        get_mol: (smiles) => ({
-          get_svg: () => generateMockMolSVG(smiles),
-          delete: () => {
-          }
-        }),
-        version: () => "RDKit-Fallback"
-      };
-    }
-  })();
-  return loadingPromise;
-}
-function generateMockMolSVG(smiles) {
-  if (smiles.toLowerCase().includes("c1ccccc1") || smiles.toLowerCase() === "benzene" || smiles === "C1=CC=CC=C1") {
-    return `<svg viewBox="0 0 200 200" width="180" height="180" xmlns="http://www.w3.org/2000/svg">
-      <!-- Benzene Ring -->
-      <polygon points="100,30 160,65 160,135 100,170 40,135 40,65" fill="none" stroke="#2c2a29" stroke-width="4.5" stroke-linejoin="round"/>
-      <polygon points="100,45 147,72 147,128 100,155 53,128 53,72" fill="none" stroke="#2c2a29" stroke-width="2.5" stroke-dasharray="8 6"/>
-      <circle cx="100" cy="100" r="32" fill="none" stroke="#d96b43" stroke-width="3" opacity="0.85"/>
-      <text x="100" y="105" text-anchor="middle" font-size="12" font-family="sans-serif" fill="#78716c">C₆H₆</text>
-    </svg>`;
-  }
-  return `<svg viewBox="0 0 220 160" width="200" height="140" xmlns="http://www.w3.org/2000/svg">
-    <!-- Generic Molecular Structure -->
-    <path d="M 40,100 L 80,60 L 120,100 L 160,60 L 190,75" fill="none" stroke="#2c2a29" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-    <line x1="80" y1="60" x2="80" y2="20" stroke="#d96b43" stroke-width="4" stroke-linecap="round"/>
-    <circle cx="80" cy="20" r="8" fill="#d96b43"/>
-    <circle cx="40" cy="100" r="6" fill="#2c2a29"/>
-    <circle cx="120" cy="100" r="6" fill="#2c2a29"/>
-    <circle cx="160" cy="60" r="6" fill="#2c2a29"/>
-    <text x="80" y="140" text-anchor="middle" font-size="13" font-family="sans-serif" fill="#78716c">${smiles || "Mol"}</text>
-  </svg>`;
-}
-function RdkitNode($$renderer, $$props) {
-  $$renderer.component(($$renderer2) => {
-    let node = $$props["node"];
-    let updateAttributes = $$props["updateAttributes"];
-    let selected = fallback($$props["selected"], false);
-    let smiles = node?.attrs?.smiles || "c1ccccc1";
-    let svgContent = "";
-    let rdkitEngine = null;
-    async function updateStructure() {
-      if (!rdkitEngine) {
-        rdkitEngine = await loadRDKitWasm();
-      }
-      if (rdkitEngine && rdkitEngine.get_mol) {
-        try {
-          const mol = rdkitEngine.get_mol(smiles);
-          if (mol && mol.get_svg) {
-            svgContent = mol.get_svg();
-            mol.delete();
-            return;
-          }
-        } catch (e) {
-        }
-      }
-      svgContent = generateMockMolSVG(smiles);
-    }
-    {
-      if (smiles !== void 0) {
-        if (updateAttributes) updateAttributes({ smiles });
-        updateStructure();
-      }
-    }
-    $$renderer2.push(`<div${attr_class(`my-6 rounded-xl border border-[#e6e1da] bg-white p-5 shadow-xs transition-all duration-200 hover:border-[#d96b43]/40 ${selected ? "ring-2 ring-[#d96b43] border-transparent" : ""}`)} contenteditable="false"><div class="flex items-center justify-between border-b border-[#f3efea] pb-3 mb-4 select-none"><div class="flex items-center gap-2 text-xs font-semibold tracking-wider text-[#78716c] uppercase"><span class="p-1 rounded-md bg-[#fdf3ef] text-[#d96b43]">`);
-    Flask_conical($$renderer2, { class: "w-4 h-4" });
-    $$renderer2.push(`<!----></span> <span>RDKit Chemistry Node</span> <span class="text-[10px] px-1.5 py-0.5 rounded bg-[#f3efea] text-[#78716c]">WebAssembly</span></div> <div class="flex items-center gap-2 text-xs"><button type="button" class="flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#f3efea] hover:bg-[#e6e1da] text-[#2c2a29] transition-colors">`);
-    Sparkles($$renderer2, { class: "w-3.5 h-3.5" });
-    $$renderer2.push(`<!----> ${escape_html("Edit Structure")}</button> <button type="button" class="flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#f3efea] hover:bg-[#e6e1da] text-[#2c2a29] transition-colors">`);
-    {
-      $$renderer2.push(`<!--[-1--><span>SMILES</span>`);
-    }
-    $$renderer2.push(`<!--]--></button></div></div> <div class="py-4 flex flex-col items-center justify-center min-h-[160px]">${html(svgContent)} <div class="mt-2 text-xs font-mono text-[#78716c] bg-[#faf8f5] px-3 py-1 rounded-md border border-[#e6e1da]">SMILES: <span class="text-[#2c2a29] font-medium">${escape_html(smiles)}</span></div></div> `);
-    {
-      $$renderer2.push("<!--[-1-->");
-    }
-    $$renderer2.push(`<!--]--></div>`);
-    bind_props($$props, { node, updateAttributes, selected });
-  });
-}
-function DiagramNode($$renderer, $$props) {
-  $$renderer.component(($$renderer2) => {
-    let node = $$props["node"];
-    let updateAttributes = $$props["updateAttributes"];
-    let selected = fallback($$props["selected"], false);
-    let diagramCode = node?.attrs?.code || `graph LR
-    A[Reactant A] --> B(Intermediate Complex)
-    B -->|Catalyst Catalyst_X| C[Benzene Derivative]
-    B --> D[Side Product]`;
-    let renderError = "";
-    let svgOutput = "";
-    let id = "mermaid_" + Math.random().toString(36).substr(2, 9);
-    async function renderDiagram() {
-      try {
-        renderError = "";
-        mermaid.initialize({
-          startOnLoad: false,
-          theme: "neutral",
-          themeVariables: {
-            primaryColor: "#fdf3ef",
-            primaryBorderColor: "#d96b43",
-            lineColor: "#78716c",
-            textColor: "#2c2a29"
-          }
-        });
-        const { svg } = await mermaid.render(id, diagramCode);
-        svgOutput = svg;
-      } catch (e) {
-        renderError = e.message || "Mermaid diagram syntax error";
-      }
-    }
-    {
-      if (diagramCode !== void 0) {
-        if (updateAttributes) updateAttributes({ code: diagramCode });
-        renderDiagram();
-      }
-    }
-    $$renderer2.push(`<div${attr_class(`my-6 rounded-xl border border-[#e6e1da] bg-white p-5 shadow-xs transition-all duration-200 hover:border-[#d96b43]/40 ${selected ? "ring-2 ring-[#d96b43] border-transparent" : ""}`)} contenteditable="false"><div class="flex items-center justify-between border-b border-[#f3efea] pb-3 mb-4 select-none"><div class="flex items-center gap-2 text-xs font-semibold tracking-wider text-[#78716c] uppercase"><span class="p-1 rounded-md bg-[#fdf3ef] text-[#d96b43]">`);
-    Workflow($$renderer2, { class: "w-4 h-4" });
-    $$renderer2.push(`<!----></span> <span>Mermaid Vector Diagram</span> <span class="text-[10px] px-1.5 py-0.5 rounded bg-[#f3efea] text-[#78716c]">Mermaid.js</span></div> <div class="flex items-center gap-2 text-xs"><button type="button" class="flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#f3efea] hover:bg-[#e6e1da] text-[#2c2a29] transition-colors">`);
-    Code($$renderer2, { class: "w-3.5 h-3.5" });
-    $$renderer2.push(`<!----> ${escape_html("Edit Diagram")}</button></div></div> <div class="py-4 flex justify-center items-center min-h-[140px] overflow-x-auto">`);
-    if (svgOutput) {
-      $$renderer2.push(`<!--[0-->${html(svgOutput)}`);
-    } else if (renderError) {
-      $$renderer2.push(`<!--[1--><div class="text-xs text-rose-500 font-mono p-3 bg-rose-50 rounded-lg">${escape_html(renderError)}</div>`);
-    } else {
-      $$renderer2.push("<!--[-1-->");
-    }
-    $$renderer2.push(`<!--]--></div> `);
-    {
-      $$renderer2.push("<!--[-1-->");
-    }
-    $$renderer2.push(`<!--]--></div>`);
-    bind_props($$props, { node, updateAttributes, selected });
-  });
-}
 function EditorCanvas($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
-    let docId = fallback($$props["docId"], "doc_benzene_synthesis");
-    let onSaveStatusChange = fallback($$props["onSaveStatusChange"], void 0);
     let editor = null;
     let slashActive = false;
     let slashPosition = { top: 0, left: 0 };
@@ -1498,7 +1368,8 @@ function EditorCanvas($$renderer, $$props) {
         return {
           latex: {
             default: "E_k = \\frac{\\hbar^2 k^2}{2m} + \\sum_{i} \\int \\psi_i^* \\hat{H} \\psi_i d\\tau"
-          }
+          },
+          displayMode: { default: true }
         };
       },
       parseHTML() {
@@ -1510,19 +1381,48 @@ function EditorCanvas($$renderer, $$props) {
       addNodeView() {
         return ({ node, getPos, editor: editor2 }) => {
           const dom = document.createElement("div");
-          const comp = new LatexNode({
-            target: dom,
-            props: {
-              node,
-              selected: false,
-              updateAttributes: (attrs) => {
-                if (typeof getPos === "function") {
-                  editor2.commands.updateAttributes("latexNode", attrs);
-                }
-              }
-            }
-          });
-          return { dom, destroy: () => comp.$destroy && comp.$destroy() };
+          mount();
+          return {
+            dom,
+            stopEvent: (event) => {
+              const target = event.target;
+              return target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.tagName === "BUTTON" || !!target.closest("button, input, textarea"));
+            },
+            destroy: () => unmount()
+          };
+        };
+      }
+    });
+    Node.create({
+      name: "latexInlineNode",
+      group: "inline",
+      inline: true,
+      atom: true,
+      addAttributes() {
+        return { latex: { default: "\\psi_i(x)" } };
+      },
+      parseHTML() {
+        return [{ tag: 'span[data-type="latex-inline-node"]' }];
+      },
+      renderHTML({ HTMLAttributes }) {
+        return [
+          "span",
+          { "data-type": "latex-inline-node", ...HTMLAttributes }
+        ];
+      },
+      addNodeView() {
+        return ({ node, getPos, editor: editor2 }) => {
+          const dom = document.createElement("span");
+          dom.style.display = "inline-block";
+          mount();
+          return {
+            dom,
+            stopEvent: (event) => {
+              const target = event.target;
+              return target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.tagName === "BUTTON" || !!target.closest("button, input, textarea"));
+            },
+            destroy: () => unmount()
+          };
         };
       }
     });
@@ -1542,19 +1442,15 @@ function EditorCanvas($$renderer, $$props) {
       addNodeView() {
         return ({ node, getPos, editor: editor2 }) => {
           const dom = document.createElement("div");
-          const comp = new RdkitNode({
-            target: dom,
-            props: {
-              node,
-              selected: false,
-              updateAttributes: (attrs) => {
-                if (typeof getPos === "function") {
-                  editor2.commands.updateAttributes("rdkitNode", attrs);
-                }
-              }
-            }
-          });
-          return { dom, destroy: () => comp.$destroy && comp.$destroy() };
+          mount();
+          return {
+            dom,
+            stopEvent: (event) => {
+              const target = event.target;
+              return target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.tagName === "BUTTON" || !!target.closest("button, input, textarea"));
+            },
+            destroy: () => unmount()
+          };
         };
       }
     });
@@ -1580,19 +1476,15 @@ function EditorCanvas($$renderer, $$props) {
       addNodeView() {
         return ({ node, getPos, editor: editor2 }) => {
           const dom = document.createElement("div");
-          const comp = new DiagramNode({
-            target: dom,
-            props: {
-              node,
-              selected: false,
-              updateAttributes: (attrs) => {
-                if (typeof getPos === "function") {
-                  editor2.commands.updateAttributes("diagramNode", attrs);
-                }
-              }
-            }
-          });
-          return { dom, destroy: () => comp.$destroy && comp.$destroy() };
+          mount();
+          return {
+            dom,
+            stopEvent: (event) => {
+              const target = event.target;
+              return target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.tagName === "BUTTON" || !!target.closest("button, input, textarea"));
+            },
+            destroy: () => unmount()
+          };
         };
       }
     });
@@ -1610,7 +1502,6 @@ function EditorCanvas($$renderer, $$props) {
       onSelectSlashItem: handleSelectSlashItem
     });
     $$renderer2.push(`<!----> <main class="mx-auto max-w-4xl px-4 py-8"><div class="min-h-[600px] rounded-3xl border border-[#e6e1da] bg-white p-8 shadow-xs md:p-12"><div></div></div></main></div>`);
-    bind_props($$props, { docId, onSaveStatusChange });
   });
 }
 function _page($$renderer) {
@@ -1641,9 +1532,6 @@ function _page($$renderer) {
       ]
     }
   ];
-  function handleSaveStatus(status) {
-    syncStatus = status;
-  }
   $$renderer.push(`<div class="flex h-screen w-screen overflow-hidden bg-[#faf8f5]"><aside${attr_class(`relative flex flex-col justify-between border-r border-[#e6e1da] bg-[#f3efea] transition-all duration-300 z-20 ${"w-72"}`)}><div><div class="flex items-center justify-between p-4 border-b border-[#e6e1da]"><div class="flex items-center gap-3"><div class="flex h-9 w-9 items-center justify-center rounded-xl bg-[#d96b43] text-white font-bold shadow-xs">N</div> `);
   {
     $$renderer.push(`<!--[0--><div><h1 class="text-sm font-bold tracking-tight text-[#2c2a29]">Nymmo Studio</h1> <p class="text-[11px] text-[#78716c]">Academic Course Editor</p></div>`);
@@ -1682,7 +1570,7 @@ function _page($$renderer) {
   $$renderer.push(`<!--]--></div></aside> <div class="flex-1 flex flex-col h-full overflow-hidden"><header class="flex items-center justify-between px-8 py-4 border-b border-[#e6e1da] bg-white select-none"><div class="flex items-center gap-3"><span class="text-xs px-2.5 py-1 rounded-md bg-[#fdf3ef] text-[#d96b43] font-mono font-medium">CHEM-402</span> <h2 class="text-base font-bold text-[#2c2a29]">3.2 Quantum Chemistry &amp; Aromaticity</h2></div> <div class="flex items-center gap-3"><button type="button" class="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#d96b43] hover:bg-[#c85a32] text-white text-xs font-semibold shadow-xs transition-all duration-200">`);
   Hard_drive_download($$renderer, { class: "w-4 h-4" });
   $$renderer.push(`<!----> <span>Static Export (Tauri / Capacitor)</span></button></div></header> <div class="flex-1 overflow-y-auto">`);
-  EditorCanvas($$renderer, { docId: activeDocId, onSaveStatusChange: handleSaveStatus });
+  EditorCanvas($$renderer);
   $$renderer.push(`<!----></div></div></div>`);
 }
 export {

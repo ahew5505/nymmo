@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte';
+  import { onDestroy } from 'svelte';
   import type { Editor } from '@tiptap/core';
   import { 
     Bold, Italic, Heading1, Heading2, List, ListOrdered, 
     Quote, Undo, Redo, Calculator, FlaskConical, 
-    Workflow, Sparkles, Code
+    Workflow, Sparkles, Code, Variable
   } from 'lucide-svelte';
 
   export let editor: Editor | null = null;
@@ -129,11 +129,18 @@
 
   const slashCommands = [
     {
-      id: 'latex',
-      title: '/latex',
-      subtitle: 'LaTeX Math Equation (KaTeX)',
+      id: 'latex-block',
+      title: '/math',
+      subtitle: 'Display Math Equation Block ($$)',
       icon: Calculator,
-      badge: 'KaTeX'
+      badge: 'Display'
+    },
+    {
+      id: 'latex-inline',
+      title: '/inlinemath',
+      subtitle: 'Inline Math Formula ($)',
+      icon: Variable,
+      badge: 'Inline'
     },
     {
       id: 'chemistry',
@@ -260,19 +267,32 @@
       <div class="flex items-center gap-1">
         <div class="h-4 w-[1px] bg-[#e6e1da] mx-1"></div>
 
+        <!-- Inline Math Button -->
         <button
           type="button"
-          on:mousedown={(e) => { e.preventDefault(); onSelectSlashItem('latex'); }}
-          class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#faf8f5] hover:bg-[#fdf3ef] hover:text-[#d96b43] text-xs font-medium text-[#78716c] border border-[#e6e1da] transition-all"
+          on:mousedown={(e) => { e.preventDefault(); onSelectSlashItem('latex-inline'); }}
+          class="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-[#faf8f5] hover:bg-[#fdf3ef] hover:text-[#d96b43] text-xs font-medium text-[#78716c] border border-[#e6e1da] transition-all"
+          title="Insert inline math equation ($...$)"
+        >
+          <Variable class="w-3.5 h-3.5 text-[#d96b43]" />
+          <span>Inline Math</span>
+        </button>
+
+        <!-- Display Math Block Button -->
+        <button
+          type="button"
+          on:mousedown={(e) => { e.preventDefault(); onSelectSlashItem('latex-block'); }}
+          class="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-[#faf8f5] hover:bg-[#fdf3ef] hover:text-[#d96b43] text-xs font-medium text-[#78716c] border border-[#e6e1da] transition-all"
+          title="Insert display block math equation ($$...$$)"
         >
           <Calculator class="w-3.5 h-3.5 text-[#d96b43]" />
-          <span>+ Math</span>
+          <span>Display Math</span>
         </button>
 
         <button
           type="button"
           on:mousedown={(e) => { e.preventDefault(); onSelectSlashItem('chemistry'); }}
-          class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#faf8f5] hover:bg-[#fdf3ef] hover:text-[#d96b43] text-xs font-medium text-[#78716c] border border-[#e6e1da] transition-all"
+          class="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-[#faf8f5] hover:bg-[#fdf3ef] hover:text-[#d96b43] text-xs font-medium text-[#78716c] border border-[#e6e1da] transition-all"
         >
           <FlaskConical class="w-3.5 h-3.5 text-[#d96b43]" />
           <span>+ Chem</span>
@@ -281,7 +301,7 @@
         <button
           type="button"
           on:mousedown={(e) => { e.preventDefault(); onSelectSlashItem('diagram'); }}
-          class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#faf8f5] hover:bg-[#fdf3ef] hover:text-[#d96b43] text-xs font-medium text-[#78716c] border border-[#e6e1da] transition-all"
+          class="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-[#faf8f5] hover:bg-[#fdf3ef] hover:text-[#d96b43] text-xs font-medium text-[#78716c] border border-[#e6e1da] transition-all"
         >
           <Workflow class="w-3.5 h-3.5 text-[#d96b43]" />
           <span>+ Diagram</span>
