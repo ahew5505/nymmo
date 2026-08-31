@@ -149,18 +149,24 @@
     editor = new Editor({
       element,
       extensions: [
-        StarterKit,
+        StarterKit.configure({
+          heading: {
+            levels: [1, 2, 3]
+          }
+        }),
         LatexNode,
         RdkitNode,
         DiagramNode
       ],
       content: `
         <h1>3.2 Quantum Chemistry & Aromaticity</h1>
-        <p>In quantum mechanics, molecular orbital theory describes the electronic structure of molecules by combining atomic orbitals into molecular orbitals. Delocalized π-electrons in aromatic rings contribute directly to resonance stabilization energy.</p>
+        <p>In quantum mechanics, <strong>molecular orbital theory</strong> describes the electronic structure of molecules by combining atomic orbitals into <em>molecular orbitals</em>. Delocalized π-electrons in aromatic rings contribute directly to resonance stabilization energy.</p>
+        <h2>Benzene Resonance Structure</h2>
+        <p>Select text anywhere in this paragraph and click <strong>Bold</strong> or <em>Italic</em> in the floating toolbar, or toggle <strong>H1 / H2</strong> headings!</p>
       `,
       editorProps: {
         attributes: {
-          class: 'prose prose-[#2c2a29] max-w-none focus:outline-none min-h-[400px] leading-relaxed text-[#2c2a29]'
+          class: 'prose max-w-none focus:outline-none min-h-[450px] leading-relaxed'
         },
         handleKeyDown(view, event) {
           if (event.key === '/') {
@@ -168,7 +174,7 @@
             const coords = view.coordsAtPos(from);
             slashPosition = {
               top: coords.bottom + window.scrollY + 6,
-              left: coords.left + window.scrollX
+              left: Math.max(16, coords.left + window.scrollX - 20)
             };
             slashActive = true;
           } else if (event.key === 'Escape') {
@@ -178,13 +184,12 @@
         }
       },
       onUpdate({ editor }) {
-        slashActive = false;
         if (onSaveStatusChange) onSaveStatusChange('Saving to RxDB...');
         saveToRxDB(editor.getJSON());
       }
     });
 
-    // Append initial nodes if blank
+    // Append initial block nodes if document is blank
     setTimeout(() => {
       if (editor && editor.isEmpty) {
         editor.chain()
@@ -224,6 +229,13 @@
   function handleSelectSlashItem(command: string) {
     slashActive = false;
     if (!editor) return;
+
+    // Clean up slash character if inserted
+    const { from } = editor.state.selection;
+    const textBefore = editor.state.doc.textBetween(Math.max(0, from - 1), from);
+    if (textBefore === '/') {
+      editor.chain().focus().deleteRange({ from: from - 1, to: from }).run();
+    }
 
     if (command === 'latex') {
       editor.chain().focus().insertContent({ type: 'latexNode' }).run();

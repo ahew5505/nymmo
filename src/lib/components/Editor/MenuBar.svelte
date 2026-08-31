@@ -1,15 +1,131 @@
 <script lang="ts">
+  import { onMount, onDestroy } from 'svelte';
   import type { Editor } from '@tiptap/core';
   import { 
     Bold, Italic, Heading1, Heading2, List, ListOrdered, 
-    Quote, Minus, Undo, Redo, Calculator, FlaskConical, 
-    Workflow, Sparkles
+    Quote, Undo, Redo, Calculator, FlaskConical, 
+    Workflow, Sparkles, Code
   } from 'lucide-svelte';
 
   export let editor: Editor | null = null;
   export let slashActive: boolean = false;
   export let slashPosition: { top: number; left: number } = { top: 0, left: 0 };
   export let onSelectSlashItem: (command: string) => void;
+
+  // Active state trackers
+  let isBold: boolean = false;
+  let isItalic: boolean = false;
+  let isH1: boolean = false;
+  let isH2: boolean = false;
+  let isBulletList: boolean = false;
+  let isOrderedList: boolean = false;
+  let isBlockquote: boolean = false;
+  let isCode: boolean = false;
+  let canUndo: boolean = false;
+  let canRedo: boolean = false;
+
+  function updateActiveStates() {
+    if (!editor) return;
+    isBold = editor.isActive('bold');
+    isItalic = editor.isActive('italic');
+    isH1 = editor.isActive('heading', { level: 1 });
+    isH2 = editor.isActive('heading', { level: 2 });
+    isBulletList = editor.isActive('bulletList');
+    isOrderedList = editor.isActive('orderedList');
+    isBlockquote = editor.isActive('blockquote');
+    isCode = editor.isActive('code');
+    canUndo = editor.can().chain().focus().undo().run();
+    canRedo = editor.can().chain().focus().redo().run();
+  }
+
+  // Subscribe to editor events when editor is set or updated
+  $: if (editor) {
+    updateActiveStates();
+    editor.on('transaction', updateActiveStates);
+    editor.on('selectionUpdate', updateActiveStates);
+    editor.on('update', updateActiveStates);
+    editor.on('focus', updateActiveStates);
+  }
+
+  onDestroy(() => {
+    if (editor) {
+      editor.off('transaction', updateActiveStates);
+      editor.off('selectionUpdate', updateActiveStates);
+      editor.off('update', updateActiveStates);
+      editor.off('focus', updateActiveStates);
+    }
+  });
+
+  // Formatting Action Handlers with Focus Retention
+  function handleToggleBold(e: MouseEvent) {
+    e.preventDefault();
+    if (!editor) return;
+    editor.chain().focus().toggleBold().run();
+    updateActiveStates();
+  }
+
+  function handleToggleItalic(e: MouseEvent) {
+    e.preventDefault();
+    if (!editor) return;
+    editor.chain().focus().toggleItalic().run();
+    updateActiveStates();
+  }
+
+  function handleToggleHeading1(e: MouseEvent) {
+    e.preventDefault();
+    if (!editor) return;
+    editor.chain().focus().toggleHeading({ level: 1 }).run();
+    updateActiveStates();
+  }
+
+  function handleToggleHeading2(e: MouseEvent) {
+    e.preventDefault();
+    if (!editor) return;
+    editor.chain().focus().toggleHeading({ level: 2 }).run();
+    updateActiveStates();
+  }
+
+  function handleToggleBulletList(e: MouseEvent) {
+    e.preventDefault();
+    if (!editor) return;
+    editor.chain().focus().toggleBulletList().run();
+    updateActiveStates();
+  }
+
+  function handleToggleOrderedList(e: MouseEvent) {
+    e.preventDefault();
+    if (!editor) return;
+    editor.chain().focus().toggleOrderedList().run();
+    updateActiveStates();
+  }
+
+  function handleToggleBlockquote(e: MouseEvent) {
+    e.preventDefault();
+    if (!editor) return;
+    editor.chain().focus().toggleBlockquote().run();
+    updateActiveStates();
+  }
+
+  function handleToggleCode(e: MouseEvent) {
+    e.preventDefault();
+    if (!editor) return;
+    editor.chain().focus().toggleCode().run();
+    updateActiveStates();
+  }
+
+  function handleUndo(e: MouseEvent) {
+    e.preventDefault();
+    if (!editor) return;
+    editor.chain().focus().undo().run();
+    updateActiveStates();
+  }
+
+  function handleRedo(e: MouseEvent) {
+    e.preventDefault();
+    if (!editor) return;
+    editor.chain().focus().redo().run();
+    updateActiveStates();
+  }
 
   const slashCommands = [
     {
@@ -59,14 +175,14 @@
 
 <!-- Floating Glass Formatting MenuBar -->
 <header class="sticky top-4 z-30 mx-auto max-w-4xl px-4 select-none">
-  <div class="flex items-center justify-between gap-1.5 rounded-2xl border border-[#e6e1da] bg-white/90 p-2 shadow-sm backdrop-blur-md transition-all">
+  <div class="flex items-center justify-between gap-1.5 rounded-2xl border border-[#e6e1da] bg-white/95 p-2 shadow-sm backdrop-blur-md transition-all">
     {#if editor}
       <!-- Text Formatting Group -->
       <div class="flex items-center gap-1">
         <button
           type="button"
-          on:click={() => editor?.chain().focus().toggleBold().run()}
-          class="p-2 rounded-lg text-[#78716c] hover:bg-[#f3efea] hover:text-[#2c2a29] transition-colors {editor.isActive('bold') ? 'bg-[#fdf3ef] text-[#d96b43] font-bold' : ''}"
+          on:mousedown={handleToggleBold}
+          class="p-2 rounded-lg text-[#78716c] hover:bg-[#f3efea] hover:text-[#2c2a29] transition-colors {isBold ? 'bg-[#fdf3ef] text-[#d96b43] font-bold shadow-2xs' : ''}"
           title="Bold (Ctrl+B)"
         >
           <Bold class="w-4 h-4" />
@@ -74,19 +190,28 @@
 
         <button
           type="button"
-          on:click={() => editor?.chain().focus().toggleItalic().run()}
-          class="p-2 rounded-lg text-[#78716c] hover:bg-[#f3efea] hover:text-[#2c2a29] transition-colors {editor.isActive('italic') ? 'bg-[#fdf3ef] text-[#d96b43]' : ''}"
+          on:mousedown={handleToggleItalic}
+          class="p-2 rounded-lg text-[#78716c] hover:bg-[#f3efea] hover:text-[#2c2a29] transition-colors {isItalic ? 'bg-[#fdf3ef] text-[#d96b43] shadow-2xs' : ''}"
           title="Italic (Ctrl+I)"
         >
           <Italic class="w-4 h-4" />
+        </button>
+
+        <button
+          type="button"
+          on:mousedown={handleToggleCode}
+          class="p-2 rounded-lg text-[#78716c] hover:bg-[#f3efea] hover:text-[#2c2a29] transition-colors {isCode ? 'bg-[#fdf3ef] text-[#d96b43] shadow-2xs' : ''}"
+          title="Inline Code"
+        >
+          <Code class="w-4 h-4" />
         </button>
 
         <div class="h-4 w-[1px] bg-[#e6e1da] mx-1"></div>
 
         <button
           type="button"
-          on:click={() => editor?.chain().focus().toggleHeading({ level: 1 }).run()}
-          class="p-2 rounded-lg text-[#78716c] hover:bg-[#f3efea] hover:text-[#2c2a29] transition-colors {editor.isActive('heading', { level: 1 }) ? 'bg-[#fdf3ef] text-[#d96b43]' : ''}"
+          on:mousedown={handleToggleHeading1}
+          class="p-2 rounded-lg text-[#78716c] hover:bg-[#f3efea] hover:text-[#2c2a29] transition-colors {isH1 ? 'bg-[#fdf3ef] text-[#d96b43] font-bold shadow-2xs' : ''}"
           title="Heading 1"
         >
           <Heading1 class="w-4 h-4" />
@@ -94,8 +219,8 @@
 
         <button
           type="button"
-          on:click={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()}
-          class="p-2 rounded-lg text-[#78716c] hover:bg-[#f3efea] hover:text-[#2c2a29] transition-colors {editor.isActive('heading', { level: 2 }) ? 'bg-[#fdf3ef] text-[#d96b43]' : ''}"
+          on:mousedown={handleToggleHeading2}
+          class="p-2 rounded-lg text-[#78716c] hover:bg-[#f3efea] hover:text-[#2c2a29] transition-colors {isH2 ? 'bg-[#fdf3ef] text-[#d96b43] font-bold shadow-2xs' : ''}"
           title="Heading 2"
         >
           <Heading2 class="w-4 h-4" />
@@ -105,8 +230,8 @@
 
         <button
           type="button"
-          on:click={() => editor?.chain().focus().toggleBulletList().run()}
-          class="p-2 rounded-lg text-[#78716c] hover:bg-[#f3efea] hover:text-[#2c2a29] transition-colors {editor.isActive('bulletList') ? 'bg-[#fdf3ef] text-[#d96b43]' : ''}"
+          on:mousedown={handleToggleBulletList}
+          class="p-2 rounded-lg text-[#78716c] hover:bg-[#f3efea] hover:text-[#2c2a29] transition-colors {isBulletList ? 'bg-[#fdf3ef] text-[#d96b43] shadow-2xs' : ''}"
           title="Bullet List"
         >
           <List class="w-4 h-4" />
@@ -114,8 +239,8 @@
 
         <button
           type="button"
-          on:click={() => editor?.chain().focus().toggleOrderedList().run()}
-          class="p-2 rounded-lg text-[#78716c] hover:bg-[#f3efea] hover:text-[#2c2a29] transition-colors {editor.isActive('orderedList') ? 'bg-[#fdf3ef] text-[#d96b43]' : ''}"
+          on:mousedown={handleToggleOrderedList}
+          class="p-2 rounded-lg text-[#78716c] hover:bg-[#f3efea] hover:text-[#2c2a29] transition-colors {isOrderedList ? 'bg-[#fdf3ef] text-[#d96b43] shadow-2xs' : ''}"
           title="Numbered List"
         >
           <ListOrdered class="w-4 h-4" />
@@ -123,8 +248,8 @@
 
         <button
           type="button"
-          on:click={() => editor?.chain().focus().toggleBlockquote().run()}
-          class="p-2 rounded-lg text-[#78716c] hover:bg-[#f3efea] hover:text-[#2c2a29] transition-colors {editor.isActive('blockquote') ? 'bg-[#fdf3ef] text-[#d96b43]' : ''}"
+          on:mousedown={handleToggleBlockquote}
+          class="p-2 rounded-lg text-[#78716c] hover:bg-[#f3efea] hover:text-[#2c2a29] transition-colors {isBlockquote ? 'bg-[#fdf3ef] text-[#d96b43] shadow-2xs' : ''}"
           title="Quote"
         >
           <Quote class="w-4 h-4" />
@@ -137,7 +262,7 @@
 
         <button
           type="button"
-          on:click={() => onSelectSlashItem('latex')}
+          on:mousedown={(e) => { e.preventDefault(); onSelectSlashItem('latex'); }}
           class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#faf8f5] hover:bg-[#fdf3ef] hover:text-[#d96b43] text-xs font-medium text-[#78716c] border border-[#e6e1da] transition-all"
         >
           <Calculator class="w-3.5 h-3.5 text-[#d96b43]" />
@@ -146,7 +271,7 @@
 
         <button
           type="button"
-          on:click={() => onSelectSlashItem('chemistry')}
+          on:mousedown={(e) => { e.preventDefault(); onSelectSlashItem('chemistry'); }}
           class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#faf8f5] hover:bg-[#fdf3ef] hover:text-[#d96b43] text-xs font-medium text-[#78716c] border border-[#e6e1da] transition-all"
         >
           <FlaskConical class="w-3.5 h-3.5 text-[#d96b43]" />
@@ -155,7 +280,7 @@
 
         <button
           type="button"
-          on:click={() => onSelectSlashItem('diagram')}
+          on:mousedown={(e) => { e.preventDefault(); onSelectSlashItem('diagram'); }}
           class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#faf8f5] hover:bg-[#fdf3ef] hover:text-[#d96b43] text-xs font-medium text-[#78716c] border border-[#e6e1da] transition-all"
         >
           <Workflow class="w-3.5 h-3.5 text-[#d96b43]" />
@@ -168,16 +293,18 @@
         <div class="h-4 w-[1px] bg-[#e6e1da] mx-1"></div>
         <button
           type="button"
-          on:click={() => editor?.chain().focus().undo().run()}
-          class="p-2 rounded-lg text-[#78716c] hover:bg-[#f3efea] hover:text-[#2c2a29] transition-colors"
+          on:mousedown={handleUndo}
+          disabled={!canUndo}
+          class="p-2 rounded-lg text-[#78716c] hover:bg-[#f3efea] hover:text-[#2c2a29] disabled:opacity-40 disabled:hover:bg-transparent transition-colors"
           title="Undo"
         >
           <Undo class="w-4 h-4" />
         </button>
         <button
           type="button"
-          on:click={() => editor?.chain().focus().redo().run()}
-          class="p-2 rounded-lg text-[#78716c] hover:bg-[#f3efea] hover:text-[#2c2a29] transition-colors"
+          on:mousedown={handleRedo}
+          disabled={!canRedo}
+          class="p-2 rounded-lg text-[#78716c] hover:bg-[#f3efea] hover:text-[#2c2a29] disabled:opacity-40 disabled:hover:bg-transparent transition-colors"
           title="Redo"
         >
           <Redo class="w-4 h-4" />
@@ -201,7 +328,7 @@
       {#each slashCommands as item}
         <button
           type="button"
-          on:click={() => onSelectSlashItem(item.id)}
+          on:mousedown={(e) => { e.preventDefault(); onSelectSlashItem(item.id); }}
           class="w-full flex items-center justify-between p-2 rounded-xl text-left hover:bg-[#fdf3ef] group transition-colors"
         >
           <div class="flex items-center gap-2.5">

@@ -1,4 +1,4 @@
-import { a6 as ssr_context, a7 as sanitize_props, a8 as rest_props, a9 as fallback, aa as attributes, ab as clsx, ac as ensure_array_like, ad as element, ae as slot, af as bind_props, ag as spread_props, ah as attr_class, ai as attr_style, aj as stringify, e as escape_html } from "../../chunks/index.js";
+import { a6 as ssr_context, a7 as sanitize_props, a8 as rest_props, a9 as fallback, aa as attributes, ab as clsx, ac as ensure_array_like, ad as element, ae as slot, af as bind_props, ag as spread_props, ah as attr_class, ai as attr, aj as attr_style, ak as stringify, e as escape_html } from "../../chunks/index.js";
 import "clsx";
 import { Node } from "@tiptap/core";
 import "@tiptap/starter-kit";
@@ -1148,6 +1148,37 @@ function MenuBar($$renderer, $$props) {
     let slashActive = fallback($$props["slashActive"], false);
     let slashPosition = fallback($$props["slashPosition"], () => ({ top: 0, left: 0 }), true);
     let onSelectSlashItem = $$props["onSelectSlashItem"];
+    let isBold = false;
+    let isItalic = false;
+    let isH1 = false;
+    let isH2 = false;
+    let isBulletList = false;
+    let isOrderedList = false;
+    let isBlockquote = false;
+    let isCode = false;
+    let canUndo = false;
+    let canRedo = false;
+    function updateActiveStates() {
+      if (!editor) return;
+      isBold = editor.isActive("bold");
+      isItalic = editor.isActive("italic");
+      isH1 = editor.isActive("heading", { level: 1 });
+      isH2 = editor.isActive("heading", { level: 2 });
+      isBulletList = editor.isActive("bulletList");
+      isOrderedList = editor.isActive("orderedList");
+      isBlockquote = editor.isActive("blockquote");
+      isCode = editor.isActive("code");
+      canUndo = editor.can().chain().focus().undo().run();
+      canRedo = editor.can().chain().focus().redo().run();
+    }
+    onDestroy(() => {
+      if (editor) {
+        editor.off("transaction", updateActiveStates);
+        editor.off("selectionUpdate", updateActiveStates);
+        editor.off("update", updateActiveStates);
+        editor.off("focus", updateActiveStates);
+      }
+    });
     const slashCommands = [
       {
         id: "latex",
@@ -1192,21 +1223,33 @@ function MenuBar($$renderer, $$props) {
         badge: "Format"
       }
     ];
-    $$renderer2.push(`<header class="sticky top-4 z-30 mx-auto max-w-4xl px-4 select-none"><div class="flex items-center justify-between gap-1.5 rounded-2xl border border-[#e6e1da] bg-white/90 p-2 shadow-sm backdrop-blur-md transition-all">`);
     if (editor) {
-      $$renderer2.push(`<!--[0--><div class="flex items-center gap-1"><button type="button"${attr_class(`p-2 rounded-lg text-[#78716c] hover:bg-[#f3efea] hover:text-[#2c2a29] transition-colors ${editor.isActive("bold") ? "bg-[#fdf3ef] text-[#d96b43] font-bold" : ""}`)} title="Bold (Ctrl+B)">`);
+      updateActiveStates();
+      editor.on("transaction", updateActiveStates);
+      editor.on("selectionUpdate", updateActiveStates);
+      editor.on("update", updateActiveStates);
+      editor.on("focus", updateActiveStates);
+    }
+    $$renderer2.push(`<header class="sticky top-4 z-30 mx-auto max-w-4xl px-4 select-none"><div class="flex items-center justify-between gap-1.5 rounded-2xl border border-[#e6e1da] bg-white/95 p-2 shadow-sm backdrop-blur-md transition-all">`);
+    if (
+      // Formatting Action Handlers with Focus Retention
+      editor
+    ) {
+      $$renderer2.push(`<!--[0--><div class="flex items-center gap-1"><button type="button"${attr_class(`p-2 rounded-lg text-[#78716c] hover:bg-[#f3efea] hover:text-[#2c2a29] transition-colors ${isBold ? "bg-[#fdf3ef] text-[#d96b43] font-bold shadow-2xs" : ""}`)} title="Bold (Ctrl+B)">`);
       Bold($$renderer2, { class: "w-4 h-4" });
-      $$renderer2.push(`<!----></button> <button type="button"${attr_class(`p-2 rounded-lg text-[#78716c] hover:bg-[#f3efea] hover:text-[#2c2a29] transition-colors ${editor.isActive("italic") ? "bg-[#fdf3ef] text-[#d96b43]" : ""}`)} title="Italic (Ctrl+I)">`);
+      $$renderer2.push(`<!----></button> <button type="button"${attr_class(`p-2 rounded-lg text-[#78716c] hover:bg-[#f3efea] hover:text-[#2c2a29] transition-colors ${isItalic ? "bg-[#fdf3ef] text-[#d96b43] shadow-2xs" : ""}`)} title="Italic (Ctrl+I)">`);
       Italic($$renderer2, { class: "w-4 h-4" });
-      $$renderer2.push(`<!----></button> <div class="h-4 w-[1px] bg-[#e6e1da] mx-1"></div> <button type="button"${attr_class(`p-2 rounded-lg text-[#78716c] hover:bg-[#f3efea] hover:text-[#2c2a29] transition-colors ${editor.isActive("heading", { level: 1 }) ? "bg-[#fdf3ef] text-[#d96b43]" : ""}`)} title="Heading 1">`);
+      $$renderer2.push(`<!----></button> <button type="button"${attr_class(`p-2 rounded-lg text-[#78716c] hover:bg-[#f3efea] hover:text-[#2c2a29] transition-colors ${isCode ? "bg-[#fdf3ef] text-[#d96b43] shadow-2xs" : ""}`)} title="Inline Code">`);
+      Code($$renderer2, { class: "w-4 h-4" });
+      $$renderer2.push(`<!----></button> <div class="h-4 w-[1px] bg-[#e6e1da] mx-1"></div> <button type="button"${attr_class(`p-2 rounded-lg text-[#78716c] hover:bg-[#f3efea] hover:text-[#2c2a29] transition-colors ${isH1 ? "bg-[#fdf3ef] text-[#d96b43] font-bold shadow-2xs" : ""}`)} title="Heading 1">`);
       Heading_1($$renderer2, { class: "w-4 h-4" });
-      $$renderer2.push(`<!----></button> <button type="button"${attr_class(`p-2 rounded-lg text-[#78716c] hover:bg-[#f3efea] hover:text-[#2c2a29] transition-colors ${editor.isActive("heading", { level: 2 }) ? "bg-[#fdf3ef] text-[#d96b43]" : ""}`)} title="Heading 2">`);
+      $$renderer2.push(`<!----></button> <button type="button"${attr_class(`p-2 rounded-lg text-[#78716c] hover:bg-[#f3efea] hover:text-[#2c2a29] transition-colors ${isH2 ? "bg-[#fdf3ef] text-[#d96b43] font-bold shadow-2xs" : ""}`)} title="Heading 2">`);
       Heading_2($$renderer2, { class: "w-4 h-4" });
-      $$renderer2.push(`<!----></button> <div class="h-4 w-[1px] bg-[#e6e1da] mx-1"></div> <button type="button"${attr_class(`p-2 rounded-lg text-[#78716c] hover:bg-[#f3efea] hover:text-[#2c2a29] transition-colors ${editor.isActive("bulletList") ? "bg-[#fdf3ef] text-[#d96b43]" : ""}`)} title="Bullet List">`);
+      $$renderer2.push(`<!----></button> <div class="h-4 w-[1px] bg-[#e6e1da] mx-1"></div> <button type="button"${attr_class(`p-2 rounded-lg text-[#78716c] hover:bg-[#f3efea] hover:text-[#2c2a29] transition-colors ${isBulletList ? "bg-[#fdf3ef] text-[#d96b43] shadow-2xs" : ""}`)} title="Bullet List">`);
       List($$renderer2, { class: "w-4 h-4" });
-      $$renderer2.push(`<!----></button> <button type="button"${attr_class(`p-2 rounded-lg text-[#78716c] hover:bg-[#f3efea] hover:text-[#2c2a29] transition-colors ${editor.isActive("orderedList") ? "bg-[#fdf3ef] text-[#d96b43]" : ""}`)} title="Numbered List">`);
+      $$renderer2.push(`<!----></button> <button type="button"${attr_class(`p-2 rounded-lg text-[#78716c] hover:bg-[#f3efea] hover:text-[#2c2a29] transition-colors ${isOrderedList ? "bg-[#fdf3ef] text-[#d96b43] shadow-2xs" : ""}`)} title="Numbered List">`);
       List_ordered($$renderer2, { class: "w-4 h-4" });
-      $$renderer2.push(`<!----></button> <button type="button"${attr_class(`p-2 rounded-lg text-[#78716c] hover:bg-[#f3efea] hover:text-[#2c2a29] transition-colors ${editor.isActive("blockquote") ? "bg-[#fdf3ef] text-[#d96b43]" : ""}`)} title="Quote">`);
+      $$renderer2.push(`<!----></button> <button type="button"${attr_class(`p-2 rounded-lg text-[#78716c] hover:bg-[#f3efea] hover:text-[#2c2a29] transition-colors ${isBlockquote ? "bg-[#fdf3ef] text-[#d96b43] shadow-2xs" : ""}`)} title="Quote">`);
       Quote($$renderer2, { class: "w-4 h-4" });
       $$renderer2.push(`<!----></button></div> <div class="flex items-center gap-1"><div class="h-4 w-[1px] bg-[#e6e1da] mx-1"></div> <button type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#faf8f5] hover:bg-[#fdf3ef] hover:text-[#d96b43] text-xs font-medium text-[#78716c] border border-[#e6e1da] transition-all">`);
       Calculator($$renderer2, { class: "w-3.5 h-3.5 text-[#d96b43]" });
@@ -1214,9 +1257,9 @@ function MenuBar($$renderer, $$props) {
       Flask_conical($$renderer2, { class: "w-3.5 h-3.5 text-[#d96b43]" });
       $$renderer2.push(`<!----> <span>+ Chem</span></button> <button type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#faf8f5] hover:bg-[#fdf3ef] hover:text-[#d96b43] text-xs font-medium text-[#78716c] border border-[#e6e1da] transition-all">`);
       Workflow($$renderer2, { class: "w-3.5 h-3.5 text-[#d96b43]" });
-      $$renderer2.push(`<!----> <span>+ Diagram</span></button></div> <div class="flex items-center gap-1"><div class="h-4 w-[1px] bg-[#e6e1da] mx-1"></div> <button type="button" class="p-2 rounded-lg text-[#78716c] hover:bg-[#f3efea] hover:text-[#2c2a29] transition-colors" title="Undo">`);
+      $$renderer2.push(`<!----> <span>+ Diagram</span></button></div> <div class="flex items-center gap-1"><div class="h-4 w-[1px] bg-[#e6e1da] mx-1"></div> <button type="button"${attr("disabled", !canUndo, true)} class="p-2 rounded-lg text-[#78716c] hover:bg-[#f3efea] hover:text-[#2c2a29] disabled:opacity-40 disabled:hover:bg-transparent transition-colors" title="Undo">`);
       Undo($$renderer2, { class: "w-4 h-4" });
-      $$renderer2.push(`<!----></button> <button type="button" class="p-2 rounded-lg text-[#78716c] hover:bg-[#f3efea] hover:text-[#2c2a29] transition-colors" title="Redo">`);
+      $$renderer2.push(`<!----></button> <button type="button"${attr("disabled", !canRedo, true)} class="p-2 rounded-lg text-[#78716c] hover:bg-[#f3efea] hover:text-[#2c2a29] disabled:opacity-40 disabled:hover:bg-transparent transition-colors" title="Redo">`);
       Redo($$renderer2, { class: "w-4 h-4" });
       $$renderer2.push(`<!----></button></div>`);
     } else {

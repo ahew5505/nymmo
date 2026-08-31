@@ -23,10 +23,13 @@
   }
 }
 
-/* TipTap Editor Styles */
+/* TipTap ProseMirror Editor Custom Typography & Styles */
 .ProseMirror {
   outline: none;
-  min-height: 400px;
+  min-height: 450px;
+  color: #2c2a29;
+  font-size: 1.05rem;
+  line-height: 1.8;
 }
 
 .ProseMirror p.is-editor-empty:first-child::before {
@@ -35,4 +38,100 @@
   float: left;
   height: 0;
   pointer-events: none;
+}
+
+/* Heading Typography */
+.ProseMirror h1 {
+  font-size: 2.25rem; /* 36px */
+  line-height: 2.5rem;
+  font-weight: 800;
+  color: #1c1917;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  letter-spacing: -0.025em;
+}
+
+.ProseMirror h2 {
+  font-size: 1.65rem; /* 26px */
+  line-height: 2.15rem;
+  font-weight: 700;
+  color: #2c2a29;
+  margin-top: 1.65rem;
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.015em;
+}
+
+.ProseMirror h3 {
+  font-size: 1.35rem; /* 21px */
+  line-height: 1.75rem;
+  font-weight: 600;
+  color: #44403c;
+  margin-top: 1.35rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Text Inline Formatting */
+.ProseMirror strong {
+  font-weight: 700;
+  color: #1c1917;
+}
+
+.ProseMirror em {
+  font-style: italic;
+  color: #383534;
+}
+
+.ProseMirror code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9em;
+  background-color: #f3efea;
+  color: #d96b43;
+  padding: 0.2em 0.4em;
+  border-radius: 0.375rem;
+}
+
+/* Paragraphs & Spacing */
+.ProseMirror p {
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+/* Blockquotes */
+.ProseMirror blockquote {
+  border-left: 4px solid #d96b43;
+  padding-left: 1.25rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
+  font-style: italic;
+  color: #57534e;
+  background-color: #faf8f5;
+  border-radius: 0 0.75rem 0.75rem 0;
+}
+
+/* Lists */
+.ProseMirror ul {
+  list-style-type: disc;
+  padding-left: 1.75rem;
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.ProseMirror ol {
+  list-style-type: decimal;
+  padding-left: 1.75rem;
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.ProseMirror li {
+  margin-top: 0.35rem;
+  margin-bottom: 0.35rem;
+}
+
+.ProseMirror hr {
+  border: none;
+  border-top: 1px solid #e6e1da;
+  margin: 2rem 0;
 }
